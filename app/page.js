@@ -37,10 +37,9 @@ const biasScoreConfig = {
   High:   { color: 'text-red-400',     bar: '#f87171', width: '85%', label: 'High Bias Influence' },
 }
 
-// 可展开的单个偏见卡片
+// Expandable card for a single cognitive bias
 function BiasItem({ bias }) {
   const [expanded, setExpanded] = useState(false)
-
   return (
     <div
       className="border border-gray-100 rounded-xl overflow-hidden cursor-pointer transition-all duration-200 hover:border-purple-200"
@@ -53,7 +52,6 @@ function BiasItem({ bias }) {
         </div>
         <span className="text-gray-300 text-xs">{expanded ? '▲' : '▼'}</span>
       </div>
-
       {expanded && (
         <div className="px-4 pb-4 pt-2 bg-purple-50 border-t border-purple-100">
           <p className="text-sm text-gray-600 leading-relaxed mb-3">
@@ -99,7 +97,6 @@ export default function Home() {
     setResult(null)
     setError('')
     setLoadingStep(0)
-
     try {
       const res = await fetch('/api/analyze', {
         method: 'POST',
@@ -129,7 +126,6 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#F7F7F5] px-4 py-16">
       <div className="w-full max-w-3xl mx-auto">
-
         {/* Header */}
         <div className="mb-10">
           <div className="flex items-center gap-2.5 mb-3">
@@ -145,7 +141,7 @@ export default function Home() {
           <p className="mt-3 text-gray-400 text-sm">AI-assisted human decision reflection system</p>
         </div>
 
-        {/* 输入卡片 */}
+        {/* Input card */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-4">
           <textarea
             className="w-full text-gray-800 placeholder-gray-300 resize-none text-base leading-relaxed focus:outline-none bg-transparent"
@@ -169,7 +165,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* 加载状态 */}
+        {/* Loading state */}
         {isLoading && (
           <div className="flex items-center gap-3 px-1 py-3">
             <div className="w-4 h-4 border-2 border-gray-200 border-t-gray-600 rounded-full animate-spin flex-shrink-0" />
@@ -194,23 +190,51 @@ export default function Home() {
                   </div>
                   <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Signal Reading</span>
                 </div>
+
+                {/* Decision State */}
                 <div className="mb-5">
                   <span className="text-xs text-gray-500 uppercase tracking-wide">Decision State</span>
                   <p className="mt-1 text-xl font-semibold text-white">{result.signal.state}</p>
+                  {result.signal.state_explained && (
+                    <p className="mt-1.5 text-sm text-gray-400 leading-relaxed">
+                      {result.signal.state_explained}
+                    </p>
+                  )}
                 </div>
-                <div className="space-y-3 mb-5">
+
+                {/* Uncertainty + Emotional Load */}
+                <div className="space-y-4 mb-5">
                   <div>
                     <span className="text-xs text-gray-500">Uncertainty</span>
                     <LevelBar level={result.signal.uncertainty} />
+                    {result.signal.uncertainty_explained && (
+                      <p className="mt-1.5 text-sm text-gray-400 leading-relaxed">
+                        {result.signal.uncertainty_explained}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <span className="text-xs text-gray-500">Emotional Load</span>
                     <LevelBar level={result.signal.emotional_load} />
+                    {result.signal.emotional_load_explained && (
+                      <p className="mt-1.5 text-sm text-gray-400 leading-relaxed">
+                        {result.signal.emotional_load_explained}
+                      </p>
+                    )}
                   </div>
                 </div>
-                <div className="border-t border-white/10 pt-4 flex items-center justify-between">
-                  <span className="text-xs text-gray-500">Suggested Direction</span>
-                  <span className="text-sm font-medium text-emerald-400">{result.signal.direction}</span>
+
+                {/* Suggested Direction */}
+                <div className="border-t border-white/10 pt-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-500">Suggested Direction</span>
+                    <span className="text-sm font-medium text-emerald-400">{result.signal.direction}</span>
+                  </div>
+                  {result.signal.direction_explained && (
+                    <p className="mt-2 text-sm text-gray-400 leading-relaxed">
+                      {result.signal.direction_explained}
+                    </p>
+                  )}
                 </div>
               </div>
             )}
@@ -300,7 +324,7 @@ export default function Home() {
               </div>
             )}
 
-            {/* Cognitive Bias Detection — 交互式 */}
+            {/* Cognitive Bias Detection — interactive */}
             {visibleCards >= 5 && result.biases && (
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 animate-fade-in-up">
                 <div className="flex items-center justify-between mb-4">
@@ -318,7 +342,7 @@ export default function Home() {
                   })()}
                 </div>
 
-                {/* Bias Score 进度条 */}
+                {/* Bias score bar */}
                 {result.bias_score && (() => {
                   const cfg = biasScoreConfig[result.bias_score] || biasScoreConfig['Medium']
                   return (
@@ -331,7 +355,7 @@ export default function Home() {
                   )
                 })()}
 
-                <p className="text-xs text-gray-400 mb-3">点击每一项查看克服建议 ↓</p>
+                <p className="text-xs text-gray-400 mb-3">Tap each bias to see how to counter it ↓</p>
 
                 <div className="space-y-2">
                   {result.biases.map((bias, i) => (
