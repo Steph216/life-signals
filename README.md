@@ -4,6 +4,12 @@
 
 **Live Demo → [life-signals.vercel.app](https://life-signals.vercel.app)**
 
+
+
+https://github.com/user-attachments/assets/227ac10b-33bd-47a0-a5d6-7c29d36448a4
+
+
+
 ---
 
 ## Overview
@@ -17,7 +23,7 @@ The project explores how AI can support human reasoning without replacing it —
 ## Key Features
 
 **Signal Reading**
-Real-time assessment of the user's decision state, including uncertainty level, emotional load, and suggested direction — expressed in decision science language rather than vague intuitions.
+An assessment of the user's decision state — how far along they are, how much is still unknown, and how much emotional weight the decision carries. Each indicator is paired with a plain-language sentence explaining what it means for that specific decision (see *What Testing Changed* below).
 
 **Scenario Engine**
 Generates three structured paths (Safe / Risky / Balanced) for any decision, each with projected outcomes, key risks, and emotional experience — helping users compare futures rather than just options.
@@ -34,7 +40,8 @@ Three deep questions generated to help users think beyond their initial framing 
 ---
 
 ## System Design
-The AI is prompted to return strict JSON rather than free text, ensuring consistent structured output across all modules. Response language automatically matches the user's input language.
+
+The AI is prompted to return strict JSON rather than free text, ensuring consistent structured output across all modules. The API key is held server-side in a Next.js route handler and is never exposed to the browser. Response language automatically matches the user's input language.
 
 ---
 
@@ -64,33 +71,43 @@ A single AI recommendation creates dependency. Three scenarios force the user to
 
 ## What Testing Changed
 
-Ten early users tried the tool. The clearest finding was one I did not expect:
-**Signal Reading** — the module deliberately written in decision-science vocabulary —
-was the part people understood least, while the concrete suggestions and reflection
-questions were the parts they found most useful.
+Ten early users tried the tool. The clearest finding was one I did not expect.
 
-The vocabulary meant to signal rigour was doing the opposite. Users were handed a
-label ("Transition Phase", "Uncertainty: High") with nothing telling them what it
-meant for *their* situation.
+**Signal Reading** — the module I had deliberately written in decision-science vocabulary — was the part people understood least. The concrete suggestions and reflection questions at the end were the parts they found most useful.
 
-Each indicator is now paired with a one-sentence plain-language explanation grounded
-in the user's own input. The label still sets the frame; the sentence makes it usable.
+The vocabulary meant to signal rigour was doing the opposite. Users were handed a label — *"Transition Phase"*, *"Uncertainty: High"* — with nothing telling them what it meant for **their** situation. A classification is not an insight.
+
+Each indicator is now paired with a one-sentence plain-language explanation grounded in the user's own input. The label still sets the frame; the sentence makes it usable.
+
+| Before | After |
+|--------|-------|
+| ![Signal Reading before](./before.png) | ![Signal Reading after](./after.png) |
+
+*Same input, before and after the change.*
 
 ---
 
 ## Running Locally
 
+```bash
 git clone https://github.com/Steph216/life-signals.git
 cd life-signals
 npm install
+```
 
 Create a `.env.local` file:
 
+```
 DEEPSEEK_API_KEY=your_api_key_here
+```
 
+```bash
 npm run dev
+```
 
 Open http://localhost:3000
+
+---
 
 ## Background
 
