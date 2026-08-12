@@ -62,6 +62,22 @@ A single AI recommendation creates dependency. Three scenarios force the user to
 
 ---
 
+## What Testing Changed
+
+Ten early users tried the tool. The clearest finding was one I did not expect:
+**Signal Reading** — the module deliberately written in decision-science vocabulary —
+was the part people understood least, while the concrete suggestions and reflection
+questions were the parts they found most useful.
+
+The vocabulary meant to signal rigour was doing the opposite. Users were handed a
+label ("Transition Phase", "Uncertainty: High") with nothing telling them what it
+meant for *their* situation.
+
+Each indicator is now paired with a one-sentence plain-language explanation grounded
+in the user's own input. The label still sets the frame; the sentence makes it usable.
+
+---
+
 ## Running Locally
 
 git clone https://github.com/Steph216/life-signals.git
