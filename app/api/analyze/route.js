@@ -20,9 +20,13 @@ Return exactly this structure:
 {
   "signal": {
     "state": "one of: Exploration Phase / Transition Phase / Commitment Phase / Crisis Point",
+    "state_explained": "one sentence in plain language explaining what this state means for THIS user's specific situation - no jargon, refer to their actual decision",
     "uncertainty": "one of: Low / Medium / High",
+    "uncertainty_explained": "one short sentence naming what specifically is still unknown in this decision",
     "emotional_load": "one of: Low / Medium / High",
-    "direction": "a short action phrase like 'Explore → Commit' or 'Pause → Reflect'"
+    "emotional_load_explained": "one short sentence naming what is creating the emotional weight here",
+    "direction": "a short action phrase like 'Explore → Commit' or 'Pause → Reflect'",
+    "direction_explained": "one sentence saying what this suggests the user should do next, and why"
   },
   "scenarios": [
     {
