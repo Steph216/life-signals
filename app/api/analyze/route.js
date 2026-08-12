@@ -1,6 +1,42 @@
+const rateLimit = new Map()
+const WINDOW_MS = 60_000   // 1 minute
+const MAX_REQUESTS = 5     // max 5 requests per minute
+
+function checkRateLimit(ip) {
+  const now = Date.now()
+  const record = rateLimit.get(ip) ?? { count: 0, resetAt: now + WINDOW_MS }
+  if (now > record.resetAt) {
+    record.count = 0
+    record.resetAt = now + WINDOW_MS
+  }
+  record.count++
+  rateLimit.set(ip, record)
+  return record.count <= MAX_REQUESTS
+}
+
 export async function POST(request) {
   try {
-    const { input } = await request.json()
+const ip = request.headers.get('x-forwarded-for')?.split(',')[0] ?? 'unknown'
+if (!checkRateLimit(ip)) {
+  return Response.json(
+    { success: false, error: 'Too many requests. Please wait a moment.' },
+    { status: 429 }
+  )
+}
+
+const { input } = await request.json()
+if (typeof input !== 'string' || input.trim().length < 5) {
+  return Response.json(
+    { success: false, error: 'Please describe your decision in a bit more detail.' },
+    { status: 400 }
+  )
+}
+if (input.length > 1000) {
+  return Response.json(
+    { success: false, error: 'Please keep your input under 1000 characters.' },
+    { status: 400 }
+  )
+}
 
     const response = await fetch('https://api.deepseek.com/chat/completions', {
       method: 'POST',
