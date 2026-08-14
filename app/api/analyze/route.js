@@ -1,6 +1,6 @@
 const rateLimit = new Map()
 const WINDOW_MS = 60_000   // 1 minute
-const MAX_REQUESTS = 5     // max 5 requests per minute
+const MAX_REQUESTS = 5     // max 5 requests per minute per IP
 
 function checkRateLimit(ip) {
   const now = Date.now()
@@ -16,27 +16,29 @@ function checkRateLimit(ip) {
 
 export async function POST(request) {
   try {
-const ip = request.headers.get('x-forwarded-for')?.split(',')[0] ?? 'unknown'
-if (!checkRateLimit(ip)) {
-  return Response.json(
-    { success: false, error: 'Too many requests. Please wait a moment.' },
-    { status: 429 }
-  )
-}
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0] ?? 'unknown'
+    if (!checkRateLimit(ip)) {
+      return Response.json(
+        { success: false, error: 'Too many requests. Please wait a moment.' },
+        { status: 429 }
+      )
+    }
 
-const { input } = await request.json()
-if (typeof input !== 'string' || input.trim().length < 5) {
-  return Response.json(
-    { success: false, error: 'Please describe your decision in a bit more detail.' },
-    { status: 400 }
-  )
-}
-if (input.length > 1000) {
-  return Response.json(
-    { success: false, error: 'Please keep your input under 1000 characters.' },
-    { status: 400 }
-  )
-}
+    const { input } = await request.json()
+
+    if (typeof input !== 'string' || input.trim().length < 5) {
+      return Response.json(
+        { success: false, error: 'Please describe your decision in a bit more detail.' },
+        { status: 400 }
+      )
+    }
+
+    if (input.length > 1000) {
+      return Response.json(
+        { success: false, error: 'Please keep your input under 1000 characters.' },
+        { status: 400 }
+      )
+    }
 
     const response = await fetch('https://api.deepseek.com/chat/completions', {
       method: 'POST',
@@ -49,7 +51,8 @@ if (input.length > 1000) {
         messages: [
           {
             role: 'user',
-            content: `You are a thoughtful decision reflection assistant. Use clear, accessible language that is easy to understand but still insightful and substantive — not too academic, not too casual. Speak like a knowledgeable friend who respects your intelligence. Analyze this decision and return ONLY a valid JSON object, no other text, no markdown backticks. IMPORTANT: Respond in the same language as the user's input.
+            content: `You are a thoughtful decision reflection assistant. Use clear, accessible language that is easy to understand but still insightful and substantive — not too academic, not too casual. Speak like a knowledgeable friend who respects the user's intelligence. Analyze this decision and return ONLY a valid JSON object, no other text, no markdown backticks.
+
 User decision: "${input}"
 
 Return exactly this structure:
@@ -99,10 +102,23 @@ Return exactly this structure:
     }
   ],
   "questions": ["3 deep reflection questions to help think clearer"]
-}`,
+}
+
+LANGUAGE RULE — read this last; it overrides the examples above.
+
+The field descriptions above are written in English only to tell you WHAT to produce. They are not a language example.
+
+Detect the language of the user's decision text. Write every free-text value you generate in that language. If the user wrote in Chinese, every sentence you output must be in Chinese.
+
+EXCEPTION — these values must stay in English exactly as listed, because the interface matches on them:
+- "state": Exploration Phase | Transition Phase | Commitment Phase | Crisis Point
+- "uncertainty", "emotional_load", "bias_score": Low | Medium | High
+- "type": Safe Path | Risky Path | Balanced Path
+
+Every other field — all *_explained fields, outcome, risk, emotion, pros, cons, risks, bias name/description/overcome, and questions — must follow the user's language.`,
           },
         ],
-        temperature: 0.7,
+        temperature: 0.3,
       }),
     })
 
